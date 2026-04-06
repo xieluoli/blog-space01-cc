@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code 使用笔记(3)_Init 你的螃蟹搭子</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --text: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --accent: #c77b3a;
+      --accent-light: #f5ede3;
+      --border: #e5e2dc;
+      --code-bg: #f3f1ed;
+      --max-width: 720px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 0 24px;
+    }
+    header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 0 96px;
+    }
+    p { margin-bottom: 24px; }
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 56px 0 20px;
+      padding-top: 8px;
+      border-top: 2px solid var(--text);
+    }
+    em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    a:hover { opacity: 0.75; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    code {
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    .feature-list {
+      list-style: none;
+      margin: 20px 0 28px;
+    }
+    .feature-list li {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 17px;
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list .arrow {
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .numbered-list {
+      margin: 20px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .numbered-list li {
+      padding: 10px 0 10px 40px;
+      position: relative;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .numbered-list li::before {
+      content: counter(list-item);
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .numbered-list {
+      counter-reset: list-item;
+    }
+    .numbered-list li {
+      counter-increment: list-item;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0;
+    }
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+      border-top: 1px solid var(--border);
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* ── TOC ── */
+    .toc {
+      position: fixed;
+      top: 80px;
+      right: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      width: 196px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .toc-list {
+      list-style: none;
+      border-left: 1px solid var(--border);
+    }
+    .toc-list li a {
+      display: block;
+      padding: 5px 0 5px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+    }
+    .toc-list li a:hover,
+    .toc-list li a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    @media (max-width: 1100px) {
+      .toc { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      h2 { font-size: 22px; }
+      pre { font-size: 12.5px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ul class="toc-list">
+      <li><a href="#s1">CLAUDE.md 是什么</a></li>
+      <li><a href="#s2">两个位置，优先级不同</a></li>
+      <li><a href="#s3">一份合格的全局 CLAUDE.md 需要什么</a></li>
+      <li><a href="#s4">给你一份可直接用的模版</a></li>
+      <li><a href="#s5">复杂项目，用 /init 更省心</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <div class="tag">Claude Code</div>
+    <h1>Claude Code 使用笔记(3)_<br>Init 你的螃蟹搭子</h1>
+    <div class="meta">
+      <span>2026 · April</span>
+      <span class="meta-dot"></span>
+      <span>Claude Code · CLAUDE.md · /init</span>
+    </div>
+  </header>
+
+  <article>
+
+    <p>螃蟹搭子挺好用的，但有个问题——它不知道你的游戏规则。</p>
+
+    <p>你喜欢 tab 还是空格？能不能直接 push 代码？爱听长篇大论还是直给答案？这些它都不知道。</p>
+
+    <p>而在复杂项目里，没有提前准备好的规则说明书，我们就需要反复的向 cc 介绍背景、提示词、规范，还会常常面临失忆问题。</p>
+
+    <p>CLAUDE.md 就是一份规则说明书。</p>
+
+    <h2 id="s1">CLAUDE.md 是什么</h2>
+
+    <p>简单说，就是你和 AI 的项目说明书。它放在项目目录里，cc 每次进来都会先看一遍。</p>
+
+    <p>内容包括四块：</p>
+
+    <ul class="feature-list">
+      <li><span class="arrow">→</span><span>项目概述</span></li>
+      <li><span class="arrow">→</span><span>技术栈信息</span></li>
+      <li><span class="arrow">→</span><span>代码风格指南</span></li>
+      <li><span class="arrow">→</span><span>开发命令（构建、测试、运行）</span></li>
+    </ul>
+
+    <h2 id="s2">两个位置，优先级不同</h2>
+
+    <p>CLAUDE.md 有多个位置可以放：</p>
+
+    <p><code>~/.claude/CLAUDE.md</code> — 全局基础配置，所有项目共享</p>
+
+    <p><code>项目目录/CLAUDE.md</code> — 项目特定配置，<strong>优先级更高</strong></p>
+
+    <p>如果两边有冲突的规则，项目级别优先。</p>
+
+    <p>举个例子：全局配置说"用中文交流"，但某个项目是英文团队的项目，项目目录下的 CLAUDE.md 说"用英文"，那 cc 就会用英文。</p>
+
+    <p><em>—— 全局设置是个 baseline，每个项目可以有自己的 override ——</em></p>
+
+    <h2 id="s3">一份合格的全局 CLAUDE.md 需要什么</h2>
+
+    <p>别写太长，200 行以内最优，重点是这四块：</p>
+
+    <ul class="feature-list">
+      <li><span class="arrow">→</span><span>沟通方式</span></li>
+      <li><span class="arrow">→</span><span>工作习惯</span></li>
+      <li><span class="arrow">→</span><span>编码偏好</span></li>
+      <li><span class="arrow">→</span><span>边界与安全</span></li>
+    </ul>
+
+    <h2 id="s4">给你一份可直接用的模版</h2>
+
+    <p>复制下面的内容，根据你的情况改一改，就能用了：</p>
+
+    <pre><code># ~/.claude/CLAUDE.md
+
+## 沟通方式
+
+- 中文沟通
+- 需求模糊时先提问澄清，不要猜
+- 回复简洁直接，不要过度解释
+- 发现更优路径时主动建议，不只按指令做
+
+## 工作习惯
+
+- 先有方案再写代码，需批准后再动手
+- 被纠正后总结原因并写入 Memory
+- 修改超过 3 个文件时，先拆成小任务
+
+## 编码偏好
+
+- 修改现有代码时，保持原有风格
+- 优先使用简单直接的方案
+- 不要留下调试用的 console.log
+- 变量命名清晰，不要用单字母或是缩写
+- 不要为假想需求预留拓展点
+
+## 边界与安全
+
+- 不要自动提交或推送代码
+- 不要未经确认添加新依赖
+- 不要重构未涉及的代码
+- 不要在代码中硬编码密钥和密码</code></pre>
+
+    <h2 id="s5">复杂项目，用 /init 更省心</h2>
+
+    <p>平常进项目是这样的：</p>
+
+    <pre><code>cd your_project
+claude</code></pre>
+
+    <p>简单项目够用，复杂项目建议用 <code>/init</code>。</p>
+
+    <p>这个命令会帮你做三件事：</p>
+
+    <ol class="numbered-list">
+      <li>创建或更新 CLAUDE.md 文件</li>
+      <li>自动分析项目结构，检测包管理器、构建工具、测试框架、主要语言和框架</li>
+      <li>生成项目配置，让后续对话更好地理解上下文</li>
+    </ol>
+
+    <p>怎么用？进入项目目录后，在 Claude Code 会话里直接输入：</p>
+
+    <pre><code>/init</code></pre>
+
+    <p>cc 会扫描你的项目，然后问你想在 CLAUDE.md 里补充哪些规则。第一次配置可能花 2-3 分钟，后面每次对话它都能按这个来。</p>
+
+    <hr>
+
+    <p>好的搭子从约定开始。</p>
+
+    <p>花 5 分钟写清楚说明书，后面能省下无数个来回</p>
+
+  </article>
+
+  <footer>
+    <span>© 2026 登月妄想计划</span>
+    <span>Claude Code · CLAUDE.md · /init</span>
+  </footer>
+
+  <script>
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    const headings = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(h => { if (h) observer.observe(h); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code 使用笔记(1)_安装及换脑</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --text: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --accent: #c77b3a;
+      --accent-light: #f5ede3;
+      --border: #e5e2dc;
+      --code-bg: #f3f1ed;
+      --max-width: 720px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 0 24px;
+    }
+    header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 0 96px;
+    }
+    p { margin-bottom: 24px; }
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 56px 0 20px;
+      padding-top: 8px;
+      border-top: 2px solid var(--text);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    a:hover { opacity: 0.75; }
+    .callout {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 32px 0;
+      font-size: 17px;
+    }
+    .callout p:last-child { margin-bottom: 0; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    code {
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0;
+    }
+    .tip {
+      background: #f0f7f0;
+      border-left: 3px solid #2d9a4a;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 20px;
+      margin: 20px 0;
+      font-size: 15.5px;
+      color: #1a4a1a;
+    }
+    .tip p:last-child { margin-bottom: 0; }
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+      border-top: 1px solid var(--border);
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ending {
+      text-align: center;
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-top: 40px;
+      padding: 0 20px;
+    }
+    /* ── TOC ── */
+    .toc {
+      position: fixed;
+      top: 80px;
+      right: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      width: 196px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .toc-list {
+      list-style: none;
+      border-left: 1px solid var(--border);
+    }
+    .toc-list li a {
+      display: block;
+      padding: 5px 0 5px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+    }
+    .toc-list li a:hover,
+    .toc-list li a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    @media (max-width: 1100px) {
+      .toc { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      h2 { font-size: 22px; }
+      pre { font-size: 12.5px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ul class="toc-list">
+      <li><a href="#s1">安装 Claude Code</a></li>
+      <li><a href="#s2">GLM 换脑</a></li>
+      <li><a href="#s3">多模型切换：cc-switch</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <div class="tag">Claude Code</div>
+    <h1>Claude Code 使用笔记(1)_安装及换脑</h1>
+    <p class="subtitle">小龙虾调教稳定之后，开始踏入之前一直望而却步的 Claude Code</p>
+    <div class="meta">
+      <span>2026 · April</span>
+      <span class="meta-dot"></span>
+      <span>Claude Code · GLM · cc-switch</span>
+    </div>
+  </header>
+
+  <article>
+
+    <p>小龙虾调教稳定之后，开始踏入之前一直望而却步的 Claude Code。</p>
+
+    <h2 id="s1">安装 Claude Code</h2>
+
+    <pre><code>npm install -g @anthropic-ai/claude-code</code></pre>
+
+    <p>Node.js 18+，macOS/Linux。npm 慢的话换镜像：</p>
+
+    <pre><code>npm config set registry https://registry.npmmirror.com</code></pre>
+
+    <p>装完跑 <code>claude</code> 完成初始设置。Claude Code 本身要连 Anthropic API，网络问题在下一步解决。</p>
+
+    <h2 id="s2">GLM 换脑</h2>
+
+    <pre><code>npx @z_ai/coding_helper</code></pre>
+
+    <p>去 <a href="https://z.ai" target="_blank">z.ai</a> 或 <a href="https://open.bigmodel.cn" target="_blank">智谱 AI 开放平台</a> 申请 API Key，按引导配置。原理是把请求转到兼容 OpenAI 格式的国内模型 endpoint，界面不变，大脑换了。</p>
+
+    <div class="tip">
+      日常编码够用。复杂架构分析或大规模重构，自己掂量。
+    </div>
+
+    <h2 id="s3">多模型切换：cc-switch</h2>
+
+    <p>需要在多套配置间切换的话：</p>
+
+    <pre><code>brew tap farion1231/ccswitch
+brew install --cask cc-switch</code></pre>
+
+    <p>系统托盘常驻，50+ 预设，Claude Code 热切换不用重启终端。MCP 多项目配置统一管，比散落在各目录里好管。</p>
+
+    <hr>
+
+    <p class="ending">工具是壳，模型是芯，你赋予灵魂 🪄</p>
+
+  </article>
+
+  <footer>
+    <span>© 2026 登月妄想计划</span>
+    <span>Claude Code · GLM · cc-switch</span>
+  </footer>
+
+  <script>
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    const headings = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(h => { if (h) observer.observe(h); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code 使用笔记(2)_必出闪光宠物✨</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --text: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --accent: #c77b3a;
+      --accent-light: #f5ede3;
+      --border: #e5e2dc;
+      --code-bg: #f3f1ed;
+      --max-width: 720px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 0 24px;
+    }
+    header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 0 96px;
+    }
+    p { margin-bottom: 24px; }
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 56px 0 20px;
+      padding-top: 8px;
+      border-top: 2px solid var(--text);
+    }
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 36px 0 14px;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    a:hover { opacity: 0.75; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    code {
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    .article-img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin: 20px 0;
+      display: block;
+    }
+    .img-caption {
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: -12px;
+      margin-bottom: 24px;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0;
+    }
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+      border-top: 1px solid var(--border);
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* ── TOC ── */
+    .toc {
+      position: fixed;
+      top: 80px;
+      right: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      width: 196px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .toc-list {
+      list-style: none;
+      border-left: 1px solid var(--border);
+    }
+    .toc-list li a {
+      display: block;
+      padding: 5px 0 5px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+    }
+    .toc-list li a:hover,
+    .toc-list li a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    .toc-list .toc-h3 a {
+      padding-left: 26px;
+      font-size: 12px;
+      color: #aaa;
+    }
+    .toc-list .toc-h3 a:hover,
+    .toc-list .toc-h3 a.active {
+      color: var(--accent);
+    }
+    @media (max-width: 1100px) {
+      .toc { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      h2 { font-size: 22px; }
+      pre { font-size: 12.5px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ul class="toc-list">
+      <li><a href="#s1">安装步骤</a></li>
+      <li class="toc-h3"><a href="#s1-1">1. 确认 Claude Code 版本</a></li>
+      <li class="toc-h3"><a href="#s1-2">2. 安装 cc-buddy</a></li>
+      <li class="toc-h3"><a href="#s1-3">3. 自定义你的 buddy</a></li>
+      <li class="toc-h3"><a href="#s1-4">4. 进入 claude，引用 /buddy</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <div class="tag">Claude Code</div>
+    <h1>Claude Code 使用笔记(2)_<br>必出闪光宠物✨</h1>
+    <div class="meta">
+      <span>2026 · April</span>
+      <span class="meta-dot"></span>
+      <span>Claude Code · cc-buddy</span>
+    </div>
+  </header>
+
+  <article>
+
+    <h2 id="s1">安装步骤</h2>
+
+    <h3 id="s1-1">1. 确认 Claude Code 版本 >= 2.1.89</h3>
+
+    <pre><code>claude update</code></pre>
+
+    <h3 id="s1-2">2. 安装 cc-buddy</h3>
+
+    <pre><code># 方式 1：npx
+npx cc-buddy
+
+# 方式 2：全局安装
+npm i -g cc-buddy</code></pre>
+
+    <h3 id="s1-3">3. 自定义你的 buddy</h3>
+
+    <p>跑完之后会出现选择界面，选一个你喜欢的宠物。</p>
+
+    <img src="../assets/buddy/buddy_init.png" alt="buddy_init" class="article-img" />
+    <p class="img-caption">选择界面</p>
+
+    <p>当然要金色传说～</p>
+
+    <img src="../assets/buddy/buddy_rate.png" alt="buddy_rate" class="article-img" />
+    <p class="img-caption">宠物等级</p>
+
+    <h3 id="s1-4">4. 进入 claude，引用 /buddy</h3>
+
+    <img src="../assets/buddy/buddy_launch.png" alt="buddy_launch" class="article-img" />
+    <p class="img-caption">启动 buddy</p>
+
+    <p>来吧神龙（右下角出现了）：</p>
+
+    <img src="../assets/buddy/buddy_succ.png" alt="buddy_succ" class="article-img" />
+    <p class="img-caption">召唤成功</p>
+
+    <hr>
+
+    <p>可以随时 <code>npx cc-buddy</code> 重新换宠物～</p>
+
+  </article>
+
+  <footer>
+    <span>© 2026 登月妄想计划</span>
+    <span>Claude Code · cc-buddy</span>
+  </footer>
+
+  <script>
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    const headings = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(h => { if (h) observer.observe(h); });
+  </script>
+</body>
+</html>

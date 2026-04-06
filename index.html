@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blog.space01.cc</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --text: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --accent: #c77b3a;
+      --accent-light: #f5ede3;
+      --border: #e5e2dc;
+      --code-bg: #f3f1ed;
+      --max-width: 720px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 0 24px;
+    }
+    header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 80px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .site-title {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .site-subtitle {
+      font-size: 17px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 48px 0 96px;
+    }
+    .article-list {
+      list-style: none;
+    }
+    .article-item {
+      display: block;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      color: inherit;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .article-item:hover {
+      opacity: 0.7;
+    }
+    .article-item:last-child {
+      border-bottom: none;
+    }
+    .article-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .article-meta {
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+      border-top: 1px solid var(--border);
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      header { padding: 56px 0 32px; }
+      .article-title { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 class="site-title">blog.space01.cc</h1>
+    <p class="site-subtitle">技术笔记 · 产品思考 · AI 探索</p>
+    <div class="meta">
+      <span>Luolie Xie</span>
+      <span class="meta-dot"></span>
+      <span>2026</span>
+    </div>
+  </header>
+
+  <main>
+    <ul class="article-list">
+      <li>
+        <a href="articles/2026-04-06-claude-code-init-3.html" class="article-item">
+          <div class="article-title">Claude Code 使用笔记(3)_Init 你的螃蟹搭子</div>
+          <div class="article-meta">
+            <span class="tag">Claude Code</span>
+            <span>2026 · April</span>
+            <span>CLAUDE.md · /init</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="articles/2026-04-05-pm-workflow-spec-coding.html" class="article-item">
+          <div class="article-title">新的 PM Workflow：从 Vibe Coding 到 Spec Coding</div>
+          <div class="article-meta">
+            <span class="tag">PM Workflow</span>
+            <span>2026 · April</span>
+            <span>OpenSpec · Spec Coding</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="articles/2026-04-02-claude-code-buddy-2.html" class="article-item">
+          <div class="article-title">Claude Code 使用笔记(2)_必出闪光宠物✨</div>
+          <div class="article-meta">
+            <span class="tag">Claude Code</span>
+            <span>2026 · April</span>
+            <span>cc-buddy</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="articles/2026-04-01-claude-code-install-1.html" class="article-item">
+          <div class="article-title">Claude Code 使用笔记(1)_安装及换脑</div>
+          <div class="article-meta">
+            <span class="tag">Claude Code</span>
+            <span>2026 · April</span>
+            <span>GLM · cc-switch</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </main>
+
+  <footer>
+    <span>© 2026 blog.space01.cc</span>
+  </footer>
+
+</body>
+</html>

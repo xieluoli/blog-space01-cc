@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>新的 PM Workflow：从 Vibe Coding 到 Spec Coding</title>
+    <style>
+      :root {
+        --bg: #faf9f7;
+        --text: #1a1a1a;
+        --text-secondary: #6b6b6b;
+        --accent: #c77b3a;
+        --accent-light: #f5ede3;
+        --border: #e5e2dc;
+        --code-bg: #f3f1ed;
+        --max-width: 720px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Georgia", "Noto Serif SC", serif;
+        font-size: 18px;
+        line-height: 1.8;
+        padding: 0 24px;
+      }
+
+      /* ── Header ── */
+      header {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 64px 0 48px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .tag {
+        display: inline-block;
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-light);
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        margin-bottom: 20px;
+      }
+
+      .subtitle {
+        font-size: 19px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 28px;
+      }
+
+      .meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .meta-dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--border);
+      }
+
+      /* ── Article ── */
+      article {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 56px 0 96px;
+      }
+
+      /* ── Typography ── */
+      p {
+        margin-bottom: 24px;
+      }
+
+      h2 {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 56px 0 20px;
+        padding-top: 8px;
+        border-top: 2px solid var(--text);
+      }
+
+      h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 36px 0 14px;
+      }
+
+      h4 {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 28px 0 10px;
+        color: var(--text-secondary);
+        font-family: "Helvetica Neue", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+      }
+
+      a:hover {
+        opacity: 0.75;
+      }
+
+      /* ── Callout ── */
+      .callout {
+        background: var(--accent-light);
+        border-left: 3px solid var(--accent);
+        border-radius: 0 8px 8px 0;
+        padding: 20px 24px;
+        margin: 32px 0;
+        font-size: 17px;
+      }
+
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── Quote ── */
+      blockquote {
+        border-left: 3px solid var(--border);
+        padding: 4px 20px;
+        margin: 24px 0;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      blockquote p {
+        margin-bottom: 8px;
+      }
+
+      blockquote p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── Code ── */
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        overflow-x: auto;
+        margin: 24px 0;
+        font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      code {
+        font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+        font-size: 14px;
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      pre code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
+      }
+
+      /* ── Step dialogue ── */
+      .dialogue {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 24px 28px;
+        margin: 24px 0;
+        font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+        font-size: 13.5px;
+        line-height: 1.7;
+      }
+
+      .dialogue .you {
+        color: #1a6be0;
+        font-weight: 600;
+      }
+
+      .dialogue .ai {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .dialogue .comment {
+        color: #999;
+      }
+
+      .dialogue .check {
+        color: #2d9a4a;
+      }
+
+      /* ── Feature list ── */
+      .feature-list {
+        list-style: none;
+        margin: 20px 0 28px;
+      }
+
+      .feature-list li {
+        display: flex;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 17px;
+      }
+
+      .feature-list li:last-child {
+        border-bottom: none;
+      }
+
+      .feature-list .arrow {
+        color: var(--accent);
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      /* ── Directory tree ── */
+      .dir-tree {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 20px 0;
+        font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+        font-size: 14px;
+        line-height: 1.8;
+        color: var(--text);
+      }
+
+      .dir-tree .dir-comment {
+        color: var(--text-secondary);
+      }
+
+      /* ── Step badge ── */
+      .step-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--text);
+        padding: 3px 12px 3px 8px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+      }
+
+      .step-label .num {
+        background: var(--accent);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      /* ── Images ── */
+      .article-img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        margin: 20px 0;
+        display: block;
+      }
+
+      .img-caption {
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-align: center;
+        margin-top: -12px;
+        margin-bottom: 24px;
+      }
+
+      /* ── Tip box ── */
+      .tip {
+        background: #f0f7f0;
+        border-left: 3px solid #2d9a4a;
+        border-radius: 0 8px 8px 0;
+        padding: 14px 20px;
+        margin: 20px 0;
+        font-size: 15.5px;
+        color: #1a4a1a;
+      }
+
+      /* ── Divider ── */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 56px 0;
+      }
+
+      /* ── Footer ── */
+      footer {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 40px 0 64px;
+        border-top: 1px solid var(--border);
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 14px;
+        color: var(--text-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* ── TOC ── */
+      .toc {
+        position: fixed;
+        top: 80px;
+        right: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+        width: 196px;
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .toc-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+      }
+
+      .toc-list {
+        list-style: none;
+        border-left: 1px solid var(--border);
+      }
+
+      .toc-list li a {
+        display: block;
+        padding: 5px 0 5px 14px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.15s;
+        border-left: 2px solid transparent;
+        margin-left: -1px;
+      }
+
+      .toc-list li a:hover,
+      .toc-list li a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+      }
+
+      .toc-list .toc-h3 a {
+        padding-left: 26px;
+        font-size: 12px;
+        color: #aaa;
+      }
+
+      .toc-list .toc-h3 a:hover,
+      .toc-list .toc-h3 a.active {
+        color: var(--accent);
+      }
+
+      @media (max-width: 1100px) {
+        .toc { display: none; }
+      }
+
+      @media (max-width: 600px) {
+        body { font-size: 16px; }
+        h2 { font-size: 22px; }
+        pre, .dialogue, .dir-tree { font-size: 12.5px; }
+        footer { flex-direction: column; gap: 12px; text-align: center; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="toc">
+      <div class="toc-title">目录</div>
+      <ul class="toc-list">
+        <li><a href="#s1">四种开发模式的演变</a></li>
+        <li><a href="#s2">OpenSpec</a></li>
+        <li class="toc-h3"><a href="#s2-install">安装</a></li>
+        <li class="toc-h3"><a href="#s2-flow">完整流程示例</a></li>
+        <li><a href="#s3">三个核心文档</a></li>
+        <li><a href="#s4">PM 实战工作流</a></li>
+        <li class="toc-h3"><a href="#step1">1. 初始化</a></li>
+        <li class="toc-h3"><a href="#step2">2. Explore</a></li>
+        <li class="toc-h3"><a href="#step3">3. proposal.md</a></li>
+        <li class="toc-h3">
+          <a href="#step4">4. spec / design / tasks</a>
+        </li>
+        <li class="toc-h3"><a href="#step5">5. 原型图（可选）</a></li>
+        <li class="toc-h3"><a href="#step6">6. 产品侧审核</a></li>
+        <li class="toc-h3"><a href="#step7">7. 归档与追踪</a></li>
+      </ul>
+    </nav>
+
+    <header>
+      <div class="tag">PM Workflow</div>
+      <h1>新的 PM Workflow：<br />从 Vibe Coding 到 Spec Coding</h1>
+      <p class="subtitle">
+        AI
+        时代的产品经理不该"感觉对了就写"——明确边界、输入输出、错误处理，给
+        AI 一份清晰的合同。
+      </p>
+      <div class="meta">
+        <span>2026 · April</span>
+        <span class="meta-dot"></span>
+        <span>Workflow · Claude Code · OpenSpec</span>
+      </div>
+    </header>
+
+    <article>
+      <div class="callout">
+        <p>
+          强烈推荐去读一下 Claude PM 负责人写的这篇文章：<a
+            href="https://claude.com/blog/product-management-on-the-ai-exponential"
+            target="_blank"
+            >Product Management on the AI Exponential</a
+          >。里面有一张图，是这篇笔记的起点。
+        </p>
+      </div>
+
+      <img
+        src="../assets/PM_workflow_new.png"
+        alt="PM Workflow New"
+        class="article-img"
+      />
+      <p class="img-caption">新的 PM Workflow 全景图</p>
+
+      <h2 id="s1">四种开发模式的演变</h2>
+
+      <p>AI 爆发之前，我们有两种主流开发方式：</p>
+
+      <ul style="list-style: none; margin: 0 0 24px;">
+        <li
+          style="padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px;"
+        >
+          <span style="font-weight:600; min-width: 80px;"
+            >瀑布开发</span
+          ><span style="color:var(--text-secondary)"
+            >适合大项目，周期长，需求锁死再动工</span
+          >
+        </li>
+        <li
+          style="padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px;"
+        >
+          <span style="font-weight:600; min-width: 80px;"
+            >敏捷开发</span
+          ><span style="color:var(--text-secondary)"
+            >快速交付，迭代验证，适应变化</span
+          >
+        </li>
+      </ul>
+
+      <br />
+
+      <p>AI 爆发之后，我们迎来了新的工作流：</p>
+
+      <ul style="list-style: none; margin: 0 0 24px;">
+        <li
+          style="padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px;"
+        >
+          <span style="font-weight:600; min-width: 80px;"
+            >Vibe Coding</span
+          ><span style="color:var(--text-secondary)"
+            >凭感觉和 AI 聊，直接出代码</span
+          >
+        </li>
+        <li style="padding: 8px 0; display: flex; gap: 12px;">
+          <span
+            style="font-weight:600; min-width: 80px; color: var(--accent);"
+            >Spec Coding ★</span
+          ><span style="color:var(--text-secondary)"
+            >我们的选择——先写规格，再让 AI 实现</span
+          >
+        </li>
+      </ul>
+
+      <p>
+        Vibe Coding 快，但是——AI
+        自由发挥很容易跑偏，边界模糊，后期返工贵。Spec Coding
+        的核心思路是：在开发前，把功能边界、输入输出、错误处理、性能要求都想清楚，给
+        AI 一份"合同"，而不是让它猜你想要什么。
+      </p>
+
+      <h2 id="s2">OpenSpec：帮你生成完整规格文档的工具</h2>
+
+      <p>
+        项目地址：<a
+          href="https://github.com/Fission-AI/OpenSpec"
+          target="_blank"
+          >github.com/Fission-AI/OpenSpec</a
+        >
+      </p>
+
+      <p>选它的几个原因：</p>
+
+      <ul class="feature-list">
+        <li>
+          <span class="arrow">→</span
+          ><span
+            ><strong>fluid not rigid</strong> —
+            灵活而非僵化，不强迫你按固定格式走</span
+          >
+        </li>
+        <li>
+          <span class="arrow">→</span
+          ><span
+            ><strong>iterative not waterfall</strong> —
+            迭代而非瀑布，边聊边完善</span
+          >
+        </li>
+        <li>
+          <span class="arrow">→</span
+          ><span
+            ><strong>easy not complex</strong> —
+            几个命令就能上手</span
+          >
+        </li>
+        <li>
+          <span class="arrow">→</span
+          ><span
+            ><strong>brownfield friendly</strong> —
+            老项目也能用，不是只针对新项目</span
+          >
+        </li>
+        <li>
+          <span class="arrow">→</span
+          ><span
+            ><strong>scalable</strong> —
+            个人项目到企业项目都适用</span
+          >
+        </li>
+      </ul>
+
+      <h3 id="s2-install">安装</h3>
+
+      <p>需要 Node.js 20.19.0 或以上。</p>
+
+      <pre><code># 全局安装
+npm install -g @fission-ai/openspec@latest
+
+# 进入你的项目目录，初始化
+cd your-project
+openspec init</code></pre>
+
+      <h3 id="s2-flow">最简单的一次完整流程长什么样</h3>
+
+      <div class="dialogue">
+        <div>
+          <span class="you">You:</span> /opsx:explore
+          add-dark-mode（加上背景、目标等描述）
+        </div>
+        <div>
+          <span class="ai">AI:</span>
+          <span class="comment">（帮你追问细节，确认边界）</span>
+        </div>
+        <br />
+        <div>
+          <span class="you">You:</span> /opsx:propose add-dark-mode
+        </div>
+        <div>
+          <span class="ai">AI:</span> Created
+          openspec/changes/add-dark-mode/
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          proposal.md — why we're doing this, what's changing
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          specs/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;—
+          requirements and scenarios
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          design.md&nbsp;&nbsp;&nbsp;— technical approach
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          tasks.md&nbsp;&nbsp;&nbsp;&nbsp;— implementation checklist
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ready for implementation!
+        </div>
+        <br />
+        <div><span class="you">You:</span> /opsx:apply</div>
+        <div><span class="ai">AI:</span> Implementing tasks...</div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          1.1 Add theme context provider
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          1.2 Create toggle component
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          2.1 Add CSS variables
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="check">✓</span>
+          2.2 Wire up localStorage
+        </div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All tasks complete!</div>
+        <br />
+        <div><span class="you">You:</span> /opsx:archive</div>
+        <div>
+          <span class="ai">AI:</span> Archived to
+          openspec/changes/archive/2025-01-23-add-dark-mode/
+        </div>
+        <div>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specs updated. Ready for the
+          next feature.
+        </div>
+      </div>
+
+      <h2 id="s3">三个核心文档</h2>
+
+      <p>
+        OpenSpec
+        的内容分两个目录：<strong>specs</strong>（已归档规格，现有系统的真相来源）和
+        <strong>changes</strong>（进行中的变更）。
+      </p>
+
+      <div class="dir-tree">
+        openspec/<br />
+        ├── specs/<br />
+        │&nbsp;&nbsp;&nbsp;├──
+        auth/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+          class="dir-comment"
+          ># 认证领域规格</span
+        ><br />
+        │&nbsp;&nbsp;&nbsp;├── payments/&nbsp;&nbsp;&nbsp;<span
+          class="dir-comment"
+          ># 支付领域规格</span
+        ><br />
+        │&nbsp;&nbsp;&nbsp;└──
+        ui/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+          class="dir-comment"
+          ># UI 领域规格</span
+        ><br />
+        └── changes/<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;└── dark-mode-support/<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──
+        proposal.md&nbsp;&nbsp;&nbsp;<span class="dir-comment"
+          ># 提案（为什么、范围）</span
+        ><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──
+        specs/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+          class="dir-comment"
+          ># 增量规格</span
+        ><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──
+        design.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+          class="dir-comment"
+          ># UI 与技术方案</span
+        ><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+        tasks.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+          class="dir-comment"
+          ># 任务清单</span
+        >
+      </div>
+
+      <p>三个核心文档各司其职：</p>
+
+      <blockquote>
+        <p>
+          <strong>proposal.md</strong>
+          回答"做什么、为什么做"——背景动机、变更范围、影响模块。是整个
+          change 的立项文件，对齐目标与边界用的。
+        </p>
+        <p>
+          <strong>spec.md</strong> 回答"必须满足什么"——用 SHALL
+          语句写可验证的需求，不关心怎么实现，只关心行为是否正确。
+        </p>
+        <p>
+          <strong>design.md</strong> 回答"怎么做"——UI
+          原型、交互细节、技术方案。
+        </p>
+      </blockquote>
+
+      <h2 id="s4">PM 实战工作流（7 步）</h2>
+
+      <p>推荐环境：Claude Code（以下简称 cc）</p>
+
+      <h3 id="step1">
+        <span class="step-label"
+          ><span class="num">1</span>初始化 OpenSpec</span
+        >
+      </h3>
+
+      <pre><code># 进入项目工作路径
+cd your_project
+
+# 初始化 openspec
+openspec init</code></pre>
+
+      <img
+        src="../assets/openspec_init.png"
+        alt="openspec init 命令执行"
+        class="article-img"
+      />
+      <p class="img-caption">执行 openspec init</p>
+
+      <p>
+        执行后，目录下会出现 openspec 相关的命令行和基本目录结构，cc
+        会话里也能看到已支持的 openspec 技能列表。
+      </p>
+
+      <img
+        src="../assets/openspec_init_files.png"
+        alt="openspec 初始化后的目录结构"
+        class="article-img"
+      />
+      <p class="img-caption">初始化后生成的目录结构</p>
+
+      <img
+        src="../assets/openspec_skills_list.png"
+        alt="cc 会话中支持的 openspec 技能列表"
+        class="article-img"
+      />
+      <p class="img-caption">cc 会话中可见的 openspec 技能</p>
+
+      <p>
+        如果是已有项目，最好先拉到最新代码，通过 AI
+        根据现有功能构建初版规格；新项目直接 init 就行。
+      </p>
+
+      <h3 id="step2">
+        <span class="step-label"
+          ><span class="num">2</span>Explore：方案发散与确定</span
+        >
+      </h3>
+
+      <pre><code>cd your_project
+claude
+
+# 在 cc 对话中
+/opsx:explore 我准备做一个 xx 功能...</code></pre>
+
+      <img
+        src="../assets/op_explore.png"
+        alt="opsx explore 对话示例"
+        class="article-img"
+      />
+      <p class="img-caption">Explore 模式对话示例</p>
+
+      <p>
+        可以持续聊，规定好细节、边界和重点。有个小技巧：<strong
+          >提前把原型图路径告诉 cc 去分析，回答会稳很多。</strong
+        >觉得聊得差不多了，进入下一步。
+      </p>
+
+      <img
+        src="../assets/op_proposal_example.png"
+        alt="proposal.md 示例"
+        class="article-img"
+      />
+      <p class="img-caption">proposal.md 内容示例</p>
+
+      <h3 id="step3">
+        <span class="step-label"
+          ><span class="num">3</span>生成 proposal.md</span
+        >
+      </h3>
+
+      <p>有三种方式，推荐前两种：</p>
+
+      <div class="dialogue">
+        <div>
+          <span class="comment"
+            >// 方式 1：在 explore 对话中直接触发</span
+          >
+        </div>
+        <div>
+          <span class="you">You:</span> 我们聊差不多了，进入 propose
+        </div>
+        <br />
+        <div>
+          <span class="comment">// 方式 2：技能命令触发</span>
+        </div>
+        <div>
+          <span class="you">You:</span> /opsx:propose 你的需求描述
+        </div>
+        <br />
+        <div>
+          <span class="comment"
+            >// 方式 3：直接手写 propose.md（不推荐）</span
+          >
+        </div>
+      </div>
+
+      <div class="tip">
+        过程中出现报错不用慌，直接让 cc 自己修就行～
+      </div>
+
+      <h3 id="step4">
+        <span class="step-label"
+          ><span class="num">4</span>生成 spec.md / design.md /
+          tasks.md</span
+        >
+      </h3>
+
+      <p>
+        proposal.md 完成后，cc
+        会随时引导你去补全剩下的文件。也可以直接用
+        <code>/opsx:design</code> 触发。
+      </p>
+
+      <div class="tip">
+        小技巧：可以告诉 cc 弱化研发细节，留给研发后续自己补充即可。
+      </div>
+
+      <h3 id="step5">
+        <span class="step-label"
+          ><span class="num">5</span>原型图生成（可选）</span
+        >
+      </h3>
+
+      <p>两条路：</p>
+      <ol style="padding-left: 24px; margin-bottom: 24px;">
+        <li style="padding: 6px 0;">
+          先自己画好，在 Explore 阶段直接带入
+        </li>
+        <li style="padding: 6px 0;">
+          先完成 proposal / design / spec.md，再通过 Figma MCP
+          生成原型图
+        </li>
+      </ol>
+
+      <h3 id="step6">
+        <span class="step-label"
+          ><span class="num">6</span>产品侧内容审核 ⭐</span
+        >
+      </h3>
+
+      <p>审核的内容包括：</p>
+      <ul style="padding-left: 24px; margin-bottom: 16px;">
+        <li style="padding: 4px 0;"><code>proposal.md</code></li>
+        <li style="padding: 4px 0;"><code>spec.md</code></li>
+        <li style="padding: 4px 0;">
+          <code>design.md</code>（UI 设计部分）
+        </li>
+      </ul>
+      <p>有不符合预期的，直接改文件，或者通过 cc 会话调整都行。</p>
+
+      <img
+        src="../assets/openspec_remain.png"
+        alt="产品侧审核后的 openspec 状态"
+        class="article-img"
+      />
+      <p class="img-caption">审核调整后的 openspec 状态</p>
+
+      <h3 id="step7">
+        <span class="step-label"
+          ><span class="num">7</span>归档与追踪</span
+        >
+      </h3>
+
+      <p>内容打包，上传到研发提供的项目仓库维护就好。</p>
+
+      <hr />
+
+      <p style="color: var(--text-secondary); font-size: 16px;">
+        Spec Coding 不是在给 AI
+        加限制，是在给整个团队省时间——明确说清楚一次，比反复对齐十次要划算。
+      </p>
+    </article>
+
+    <footer>
+      <span>© 2026 PM Notes</span>
+      <span>Claude Code · OpenSpec · Spec Coding</span>
+    </footer>
+
+    <script>
+      const tocLinks = document.querySelectorAll('.toc-list a');
+      const headings = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach(a => a.classList.remove('active'));
+            const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+            if (active) active.classList.add('active');
+          }
+        });
+      }, { rootMargin: '0px 0px -70% 0px' });
+
+      headings.forEach(h => { if (h) observer.observe(h); });
+    </script>
+  </body>
+</html>
