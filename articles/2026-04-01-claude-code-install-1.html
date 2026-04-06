@@ -106,6 +106,7 @@
       border-radius: 8px;
       padding: 20px 24px;
       overflow-x: auto;
+      white-space: pre;
       margin: 24px 0;
       font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
       font-size: 14px;
@@ -204,7 +205,36 @@
       pre { font-size: 12.5px; }
       footer { flex-direction: column; gap: 12px; text-align: center; }
     }
-  </style>
+      .code-block-wrapper {
+      position: relative;
+      margin: 24px 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(199, 123, 58, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: rgba(199, 123, 58, 0.2);
+    }
+    .copy-btn.copied {
+      background: rgba(45, 154, 74, 0.1);
+      color: #2d9a4a;
+      border-color: #2d9a4a;
+    }
+</style>
 </head>
 <body>
 
@@ -234,17 +264,44 @@
 
     <h2 id="s1">安装 Claude Code</h2>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code>npm install -g @anthropic-ai/claude-code</code></pre>
+    </div>
 
     <p>Node.js 18+，macOS/Linux。npm 慢的话换镜像：</p>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code>npm config set registry https://registry.npmmirror.com</code></pre>
+    </div>
 
     <p>装完跑 <code>claude</code> 完成初始设置。Claude Code 本身要连 Anthropic API，网络问题在下一步解决。</p>
 
     <h2 id="s2">GLM 换脑</h2>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code>npx @z_ai/coding_helper</code></pre>
+    </div>
 
     <p>去 <a href="https://z.ai" target="_blank">z.ai</a> 或 <a href="https://open.bigmodel.cn" target="_blank">智谱 AI 开放平台</a> 申请 API Key，按引导配置。原理是把请求转到兼容 OpenAI 格式的国内模型 endpoint，界面不变，大脑换了。</p>
 
@@ -256,8 +313,17 @@
 
     <p>需要在多套配置间切换的话：</p>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code>brew tap farion1231/ccswitch
 brew install --cask cc-switch</code></pre>
+    </div>
 
     <p>系统托盘常驻，50+ 预设，Claude Code 热切换不用重启终端。MCP 多项目配置统一管，比散落在各目录里好管。</p>
 
@@ -287,6 +353,22 @@ brew install --cask cc-switch</code></pre>
     }, { rootMargin: '0px 0px -70% 0px' });
 
     headings.forEach(h => { if (h) observer.observe(h); });
-  </script>
+  
+  function copyCode(button) {
+    const wrapper = button.parentElement;
+    const code = wrapper.querySelector('code');
+    const text = code.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      button.classList.add('copied');
+      button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
+      
+      setTimeout(() => {
+        button.classList.remove('copied');
+        button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制';
+      }, 2000);
+    });
+  }
+</script>
 </body>
 </html>

@@ -105,6 +105,36 @@
       font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
       font-size: 14px;
       line-height: 1.65;
+      white-space: pre;
+    }
+    .code-block-wrapper {
+      position: relative;
+      margin: 24px 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(199, 123, 58, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: rgba(199, 123, 58, 0.2);
+    }
+    .copy-btn.copied {
+      background: rgba(45, 154, 74, 0.1);
+      color: #2d9a4a;
+      border-color: #2d9a4a;
     }
     code {
       font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
@@ -310,6 +340,14 @@
 
     <p>复制下面的内容，根据你的情况改一改，就能用了：</p>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code># ~/.claude/CLAUDE.md
 
 ## 沟通方式
@@ -339,13 +377,23 @@
 - 不要未经确认添加新依赖
 - 不要重构未涉及的代码
 - 不要在代码中硬编码密钥和密码</code></pre>
+    </div>
 
     <h2 id="s5">复杂项目，用 /init 更省心</h2>
 
     <p>平常进项目是这样的：</p>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code>cd your_project
 claude</code></pre>
+    </div>
 
     <p>简单项目够用，复杂项目建议用 <code>/init</code>。</p>
 
@@ -359,7 +407,16 @@ claude</code></pre>
 
     <p>怎么用？进入项目目录后，在 Claude Code 会话里直接输入：</p>
 
+        <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        复制
+      </button>
     <pre><code>/init</code></pre>
+    </div>
 
     <p>cc 会扫描你的项目，然后问你想在 CLAUDE.md 里补充哪些规则。第一次配置可能花 2-3 分钟，后面每次对话它都能按这个来。</p>
 
@@ -391,6 +448,22 @@ claude</code></pre>
     }, { rootMargin: '0px 0px -70% 0px' });
 
     headings.forEach(h => { if (h) observer.observe(h); });
-  </script>
+  
+  function copyCode(button) {
+    const wrapper = button.parentElement;
+    const code = wrapper.querySelector('code');
+    const text = code.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      button.classList.add('copied');
+      button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
+      
+      setTimeout(() => {
+        button.classList.remove('copied');
+        button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制';
+      }, 2000);
+    });
+  }
+</script>
 </body>
 </html>
