@@ -436,6 +436,27 @@
       color: #2d9a4a;
       border-color: #2d9a4a;
     }
+    .back-btn {
+      position: fixed;
+      top: 80px;
+      left: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+      z-index: 10;
+    }
+    .back-btn:hover {
+      color: var(--accent);
+      opacity: 1;
+    }
+    @media (max-width: 1100px) {
+      .back-btn { display: none; }
+    }
 </style>
   </head>
   <body>

@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code 使用笔记(4)_Hooks：条件反射机制</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --text: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --accent: #c77b3a;
+      --accent-light: #f5ede3;
+      --border: #e5e2dc;
+      --code-bg: #f3f1ed;
+      --max-width: 720px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 0 24px;
+    }
+    header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 0 96px;
+    }
+    p { margin-bottom: 24px; }
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 56px 0 20px;
+      padding-top: 8px;
+      border-top: 2px solid var(--text);
+    }
+    em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    a:hover { opacity: 0.75; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+    .code-block-wrapper {
+      position: relative;
+      margin: 24px 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(199, 123, 58, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: rgba(199, 123, 58, 0.2);
+    }
+    .copy-btn.copied {
+      background: rgba(45, 154, 74, 0.1);
+      color: #2d9a4a;
+      border-color: #2d9a4a;
+    }
+    code {
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 15px;
+    }
+    th {
+      background: var(--code-bg);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0;
+    }
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+      border-top: 1px solid var(--border);
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* ── TOC ── */
+    .toc {
+      position: fixed;
+      top: 80px;
+      right: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      width: 196px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .toc-list {
+      list-style: none;
+      border-left: 1px solid var(--border);
+    }
+    .toc-list li a {
+      display: block;
+      padding: 5px 0 5px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+    }
+    .toc-list li a:hover,
+    .toc-list li a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    @media (max-width: 1100px) {
+      .toc { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      h2 { font-size: 22px; }
+      pre { font-size: 12.5px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    .back-btn {
+      position: fixed;
+      top: 80px;
+      left: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+      z-index: 10;
+    }
+    .back-btn:hover {
+      color: var(--accent);
+      opacity: 1;
+    }
+    @media (max-width: 1100px) {
+      .back-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../index.html" class="back-btn">&larr; 首页</a>
+
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ul class="toc-list">
+      <li><a href="#s1">Hooks 是什么</a></li>
+      <li><a href="#s2">四个时机，覆盖全流程</a></li>
+      <li><a href="#s3">三个即装即用的 Hook</a></li>
+      <li><a href="#s4">怎么配置</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <div class="tag">Claude Code</div>
+    <h1>Claude Code 使用笔记(4)_<br>Hooks：条件反射机制</h1>
+    <div class="meta">
+      <span>2026 · April</span>
+      <span class="meta-dot"></span>
+      <span>Claude Code · Hooks · 自动化</span>
+    </div>
+  </header>
+
+  <article>
+
+    <p>上篇讲了 CLAUDE.md，给 cc 写一份规则说明书。</p>
+
+    <p>但说明书有个问题——它靠 cc "记着遵守"。你在 CLAUDE.md 里写"写完代码跑一下 lint"，有时候它会做，有时候……就没有然后了。就像跟实习生说"提交前检查一下格式"，第三周他还是忘了。说实话，被这件事坑过不止一次，每次都是 review 的时候才发现一堆格式问题，气昏。</p>
+
+    <p>Hooks 解决的就是这个问题。</p>
+
+    <p>不是让 cc 记着做，是去触发系统被动来做。</p>
+
+    <h2 id="s1">Hooks 是什么</h2>
+
+    <p>一句话：在 cc 执行操作的前后，自动触发你的脚本。</p>
+
+    <p>CLAUDE.md 靠 cc 读懂并自觉执行，Hooks 是系统级别的自动触发，cc 没有选择权。</p>
+
+    <p>两者对比：</p>
+
+    <table>
+      <tr><th></th><th>CLAUDE.md</th><th>Hooks</th></tr>
+      <tr><td>本质</td><td>给 cc 看的文字规则</td><td>给系统执行的 Shell 脚本</td></tr>
+      <tr><td>执行方式</td><td>cc 阅读后尽量遵守</td><td>到时间点强制运行</td></tr>
+      <tr><td>可靠性</td><td>偶尔会忘</td><td>100% 触发</td></tr>
+      <tr><td>适合场景</td><td>编码风格、项目背景</td><td>格式化、安全拦截、通知</td></tr>
+    </table>
+
+    <h2 id="s2">四个时机，覆盖全流程</h2>
+
+    <p>Hooks 有五种事件类型，常用的四个：</p>
+
+    <p><em>— PreToolUse —</em>：工具调用前触发。这是唯一能"拦截"操作的时机。cc 准备跑命令或写文件之前，你的脚本先跑一遍，exit 2 就是"不行，停下"。</p>
+
+    <p><em>— PostToolUse —</em>：工具执行完成后触发。文件写完了，自动跑格式化；代码改完了，自动跑测试。善后工作全交给它。</p>
+
+    <p><em>— Notification —</em>：cc 产生通知时触发。跑大任务时把 macOS 提醒挂上，不用盯着终端。</p>
+
+    <p><em>— Stop —</em>：cc 完成一轮回复后触发。这轮问答结束了，播一个提示音。切出去做别的事，听到"叮"就知道好了。</p>
+
+    <p>整体流程大概长这样：你发消息 → cc 思考 → [PreToolUse] → 执行工具 → [PostToolUse] → 回复你 → [Stop]</p>
+
+    <h2 id="s3">三个即装即用的 Hook</h2>
+
+    <p><strong>① 完成提示音（30 秒上手）</strong></p>
+
+    <p>跑大任务时最烦的事——不知道 cc 搞完了没有，得一直切回来看。</p>
+
+    <p>通过 Stop Hook 解决这个问题，在 <code>~/.claude/settings.json</code> 里加：</p>
+
+    <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        复制
+      </button>
+    <pre><code>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <p>macOS 自带的系统音效，不需要额外装任何东西。想换声音可以把 <code>Glass.aiff</code> 换成 <code>Ping.aiff</code>、<code>Pop.aiff</code>。</p>
+
+    <p>配完之后，你丢给 cc 一个任务，等听到玻璃音效就知道它搞完了。</p>
+
+    <p><strong>② 自动格式化（最实用）</strong></p>
+
+    <p>cc 写出来的代码，格式有时候跟项目规范对不上。不是说它态度不好，是这类机械性的东西本来就不该靠"记着"来保证——人也一样，我自己写代码心情好的时候也会跳过格式化，何况 AI。</p>
+
+    <p>PostToolUse 挂上 prettier，文件一落地就跑格式化，不给"尽量"留余地：</p>
+
+    <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        复制
+      </button>
+    <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <p><code>matcher</code> 里写 <code>Write|Edit</code>，匹配新建和修改两种操作。<code>|| true</code> 防止 prettier 报错把整个 Hook 流程中断。</p>
+
+    <p>从此 cc 写完文件，你看到的永远是格式化好的代码。</p>
+
+    <p><strong>③ 保护关键文件（最安全）</strong></p>
+
+    <p>有些文件不能动。<code>package-lock.json</code>、<code>yarn.lock</code>、数据库 migration 文件……cc 有时候心情好，会在你没注意时顺手"帮你"改一下。我有次回来看提交记录，lock 文件多了一堆 diff，很难受，查了半天才弄清楚是 cc 在"优化依赖"。</p>
+
+    <p>PreToolUse 加一层检查，exit 2 直接拦：</p>
+
+    <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        复制
+      </button>
+    <pre><code>#!/bin/bash
+input=$(cat -)
+file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty')
+
+protected=("package-lock.json" "yarn.lock" "pnpm-lock.yaml" "migrations/")
+
+for pattern in "${protected[@]}"; do
+  if echo "$file_path" | grep -q "$pattern"; then
+    echo "受保护文件，不允许修改: $file_path" >&2
+    exit 2
+  fi
+done
+
+exit 0</code></pre>
+    </div>
+
+    <p>然后在 settings.json 里挂上：</p>
+
+    <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        复制
+      </button>
+    <pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/protect_files.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <p>cc 想改 lock 文件？不好意思，脚本 exit 2，操作直接被打回去，cc 会在回复里告诉你"该文件受保护，无法修改"。</p>
+
+    <h2 id="s4">怎么配置</h2>
+
+    <p><strong>方式 1：<code>/hooks</code> 交互式配置</strong></p>
+
+    <p>在 cc 会话里输入 <code>/hooks</code>，会进入菜单界面，选事件类型、填命令、保存，不用手动碰 JSON。第一次用推荐这个，不容易写错格式。</p>
+
+    <p><strong>方式 2：直接编辑 settings.json</strong></p>
+
+    <p>配置文件有两个层级：</p>
+
+    <p><code>~/.claude/settings.json</code> — 全局，所有项目生效</p>
+
+    <p><code>项目目录/.claude/settings.json</code> — 项目级，只对当前项目生效，优先级更高</p>
+
+    <p>和 CLAUDE.md 的层级逻辑完全一样——全局是 baseline，项目可以 override。</p>
+
+    <p>一份可以直接复制的完整配置模板：</p>
+
+    <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        复制
+      </button>
+    <pre><code>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <p>把这个丢到 <code>~/.claude/settings.json</code>，提示音和自动格式化就都有了。</p>
+
+    <hr>
+
+    <p>最后说一下 CLAUDE.md 和 Hooks 的配合，用一句话总结：</p>
+
+    <p><em>— CLAUDE.md 管意图，Hooks 管执行 ——</em></p>
+
+    <p>CLAUDE.md 里写"遵循 ESLint 规范"，是让 cc 生成代码时就往那个方向走。Hooks 里挂 <code>eslint --fix</code>，是写完之后兜底保障。一个告诉它应该怎么做，一个确保它最后真的做了。</p>
+
+    <p>两者不是替代关系，是同一件事的两个保险。</p>
+
+    <p>CLAUDE.md 是告诉螃蟹"应该怎么做"，Hooks 是让它"不得不这么做"。</p>
+
+  </article>
+
+  <footer>
+    <span>&copy; 2026 blog.space01.cc</span>
+    <span>Claude Code &middot; Hooks &middot; 自动化</span>
+  </footer>
+
+  <script>
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    const headings = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(h => { if (h) observer.observe(h); });
+
+  function copyCode(button) {
+    const wrapper = button.parentElement;
+    const code = wrapper.querySelector('code');
+    const text = code.textContent;
+
+    navigator.clipboard.writeText(text).then(() => {
+      button.classList.add('copied');
+      button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
+
+      setTimeout(() => {
+        button.classList.remove('copied');
+        button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制';
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
