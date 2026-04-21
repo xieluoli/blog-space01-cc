@@ -4,7 +4,6 @@
 
 ### 方式 1: Python
 ```bash
-cd /Users/luolixie/claude_workspace/personal-site
 python3 -m http.server 8000
 ```
 打开 http://localhost:8000
@@ -22,7 +21,7 @@ php -S localhost:8000
 ## 部署到服务器
 
 ### 静态托管 (Vercel / Netlify / GitHub Pages)
-直接将 `personal-site` 目录连接到托管平台即可
+直接将项目目录连接到托管平台即可
 
 ### 自己的服务器 (Nginx) - blog.space01.cc
 ```nginx
@@ -37,7 +36,6 @@ server {
         try_files $uri $uri/ =404;
     }
 
-    # 启用 gzip 压缩
     gzip on;
     gzip_types text/html text/css application/javascript;
 }
@@ -45,8 +43,8 @@ server {
 
 部署步骤：
 ```bash
-# 1. 将整个 personal-site 目录复制到服务器
-scp -r personal-site/* user@your-server:/var/www/blog.space01.cc/
+# 1. 将项目目录复制到服务器
+scp -r ./* user@your-server:/var/www/blog.space01.cc/
 
 # 2. 配置 Nginx（如上）
 # 3. 重启 Nginx
