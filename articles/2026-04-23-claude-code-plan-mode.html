@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code 使用笔记(5)_/plan 模式：先出图纸，再动砖头</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --text: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --accent: #c77b3a;
+      --accent-light: #f5ede3;
+      --border: #e5e2dc;
+      --code-bg: #f3f1ed;
+      --max-width: 720px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 0 24px;
+    }
+    header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 0 96px;
+    }
+    p { margin-bottom: 24px; }
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 56px 0 20px;
+      padding-top: 8px;
+      border-top: 2px solid var(--text);
+    }
+    em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    a:hover { opacity: 0.75; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+    .code-block-wrapper {
+      position: relative;
+      margin: 24px 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(199, 123, 58, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: rgba(199, 123, 58, 0.2);
+    }
+    .copy-btn.copied {
+      background: rgba(45, 154, 74, 0.1);
+      color: #2d9a4a;
+      border-color: #2d9a4a;
+    }
+    code {
+      font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      font-size: 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 12px 20px;
+      margin: 24px 0;
+      background: var(--accent-light);
+      border-radius: 0 6px 6px 0;
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+    blockquote p { margin-bottom: 8px; }
+    blockquote p:last-child { margin-bottom: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 15px;
+    }
+    th {
+      background: var(--code-bg);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0;
+    }
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 0 64px;
+      border-top: 1px solid var(--border);
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* ── TOC ── */
+    .toc {
+      position: fixed;
+      top: 80px;
+      right: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      width: 196px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .toc-list {
+      list-style: none;
+      border-left: 1px solid var(--border);
+    }
+    .toc-list li a {
+      display: block;
+      padding: 5px 0 5px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+    }
+    .toc-list li a:hover,
+    .toc-list li a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    @media (max-width: 1100px) {
+      .toc { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      h2 { font-size: 22px; }
+      pre { font-size: 12.5px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    .back-btn {
+      position: fixed;
+      top: 80px;
+      left: max(24px, calc((100vw - var(--max-width)) / 2 - 220px));
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+      z-index: 10;
+    }
+    .back-btn:hover {
+      color: var(--accent);
+      opacity: 1;
+    }
+    @media (max-width: 1100px) {
+      .back-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../index.html" class="back-btn">&larr; 首页</a>
+
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ul class="toc-list">
+      <li><a href="#s1">/plan 的底层逻辑</a></li>
+      <li><a href="#s2">用 /plan 开发一个 App</a></li>
+      <li><a href="#s3">什么时候用 /plan</a></li>
+      <li><a href="#s4">和直接执行的本质区别</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <div class="tag">Claude Code</div>
+    <h1>Claude Code 使用笔记(5)_<br>/plan 模式：先出图纸，再动砖头</h1>
+    <div class="meta">
+      <span>2026 · April</span>
+      <span class="meta-dot"></span>
+      <span>Claude Code · /plan · 方案规划</span>
+    </div>
+  </header>
+
+  <article>
+
+    <p>用过 Claude Code 的人大多遇到过这种情况：需求一发，它直接开始写代码，写完才发现方向跑偏了。</p>
+
+    <p>问题不在于它能力不够，而在于 LLM 的工作机制——它在收到指令的瞬间就开始生成，不会主动停下来确认理解是否一致。<code>/plan</code> 模式就是为了解决这个问题而设计的。</p>
+
+    <h2 id="s1">/plan 模式的底层逻辑</h2>
+
+    <p>正常对话模式下，Claude Code 的执行路径是：<em>收到指令 → 立即写代码</em>。</p>
+
+    <p><code>/plan</code> 模式改变了这个路径，变成：<em>收到指令 → 探索分析 → 输出方案 → 等待批准 → 执行</em>。</p>
+
+    <p>关键在"等待批准"这一步。批准之前，它不会修改任何文件。</p>
+
+    <p>这个设计背后的逻辑是：<em>在执行层面的返工成本，远高于在规划层面的修改成本</em>。改一份文字方案只需要一句话，改已经写好的代码可能要推倒重来。<code>/plan</code> 把对齐的成本前置，规避了执行阶段的高代价返工。</p>
+
+    <h2 id="s2">用 /plan 开发一个 App 的完整流程</h2>
+
+    <h3>第一步：进入 plan 模式并描述需求</h3>
+
+    <div class="code-block-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        复制
+      </button>
+    <pre><code>/plan 帮我做一个本地记账小工具，支持：
+- 手动输入收支记录
+- 按类别统计（餐饮/交通/娱乐）
+- 导出 CSV</code></pre>
+    </div>
+
+    <p>发出后，Claude Code 进入 plan 模式，此后只做分析，不动代码。</p>
+
+    <h3>第二步：Claude Code 主动探索</h3>
+
+    <p>这一阶段，它会做两件事：</p>
+
+    <p><em>读懂现有项目</em>（如果是已有项目）：扫描文件结构，理解已有代码的技术栈、目录组织、依赖关系，确保方案与现有代码兼容，不会引入冲突。</p>
+
+    <p><em>通过反问澄清需求</em>（如果描述不够明确）：比如"是命令行界面还是图形界面？""存储用文件还是数据库？"这些问题在规划阶段回答，比在代码写了一半时再改要省事得多。</p>
+
+    <h3>第三步：输出实施方案</h3>
+
+    <p>探索完成后，它会给出结构化的方案，包括技术选型、文件结构、实施步骤：</p>
+
+    <blockquote>
+      <p><strong>实施方案</strong></p>
+      <p>技术栈：Python + SQLite + Click（命令行界面）</p>
+      <p>文件结构：</p>
+      <p>- <code>main.py</code>：程序入口</p>
+      <p>- <code>db.py</code>：数据库操作封装</p>
+      <p>- <code>export.py</code>：CSV 导出逻辑</p>
+      <p>实施步骤：</p>
+      <p>1. 初始化数据库，建 transactions 表</p>
+      <p>2. 实现 add / list / summary 命令</p>
+      <p>3. 实现 export 命令</p>
+    </blockquote>
+
+    <p>在这一步，你可以直接修改方案。说"不要用 Click，改成普通输入"，它调整方案；说"存储改用 JSON 文件"，它重新规划。方案确认后，你给出批准指令，它才开始写代码。</p>
+
+    <h3>第四步：按方案执行</h3>
+
+    <p>退出 plan 模式后，Claude Code 按照已确认的方案逐步实现。因为核心决策已经在规划阶段对齐，执行过程中的偏差通常只停留在细节层面，不会出现方向性错误。</p>
+
+    <h2 id="s3">什么时候用 /plan 更合适</h2>
+
+    <p>不是所有任务都需要 /plan。改一个小 bug、加一个单独函数，直接说就行。</p>
+
+    <p>以下几类场景，开 /plan 会明显减少返工：</p>
+
+    <p><em>从零起新项目</em>：技术栈、目录结构、依赖关系都没定，先出方案确认方向，比写完才发现框架选错了要好。</p>
+
+    <p><em>多文件联动改动</em>：重构模块、加跨越前后端的功能——影响范围大，规划阶段先列清楚哪些文件会变、变什么，比执行到一半发现漏掉关键依赖更安全。</p>
+
+    <p><em>需求描述不清晰</em>：知道想要什么结果，但说不清楚技术路径。进 plan 模式，通过它的反问把需求结构化，比自己干想要快，也比描述不清就让它动手要准确。</p>
+
+    <p><em>重构</em>：重构的核心风险是"改了不该改的地方"。方案阶段明确影响边界，执行时更可控。</p>
+
+    <h2 id="s4">和直接执行的本质区别</h2>
+
+    <p>直接发指令：对齐成本在执行之后——发现不对，返工。</p>
+
+    <p>用 /plan：对齐成本在执行之前——方案不对，改方案。</p>
+
+    <p>两者的时间总量不一定差多少，但后者的不确定性更低。对复杂任务来说，把高代价的"代码返工"换成低代价的"方案修改"，是更合理的工程决策～</p>
+
+  </article>
+
+  <footer>
+    <span>&copy; 2026 blog.space01.cc</span>
+    <span>Claude Code &middot; /plan &middot; 方案规划</span>
+  </footer>
+
+  <script>
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    const headings = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(h => { if (h) observer.observe(h); });
+
+  function copyCode(button) {
+    const wrapper = button.parentElement;
+    const code = wrapper.querySelector('code');
+    const text = code.textContent;
+
+    navigator.clipboard.writeText(text).then(() => {
+      button.classList.add('copied');
+      button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
+
+      setTimeout(() => {
+        button.classList.remove('copied');
+        button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制';
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
