@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Claude Code 使用笔记(2)_必出闪光宠物✨</title>
+  <title>Claude Code 使用笔记(6)_一个插件，把散装零件装成整车</title>
   <style>
     :root {
       --bg: #faf9f7;
@@ -84,10 +84,9 @@
       padding-top: 8px;
       border-top: 2px solid var(--text);
     }
-    h3 {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 56px 0 14px;
+    em {
+      font-style: italic;
+      color: var(--accent);
     }
     a {
       color: var(--accent);
@@ -102,11 +101,40 @@
       border-radius: 8px;
       padding: 20px 24px;
       overflow-x: auto;
-      white-space: pre;
       margin: 24px 0;
       font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
       font-size: 14px;
       line-height: 1.65;
+      white-space: pre;
+    }
+    .code-block-wrapper {
+      position: relative;
+      margin: 24px 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(199, 123, 58, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: rgba(199, 123, 58, 0.2);
+    }
+    .copy-btn.copied {
+      background: rgba(45, 154, 74, 0.1);
+      color: #2d9a4a;
+      border-color: #2d9a4a;
     }
     code {
       font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
@@ -122,21 +150,17 @@
       padding: 0;
       font-size: inherit;
     }
-    .article-img {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      margin: 20px 0;
-      display: block;
-    }
-    .img-caption {
-      font-family: "Helvetica Neue", sans-serif;
-      font-size: 13px;
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 12px 20px;
+      margin: 24px 0;
+      background: var(--accent-light);
+      border-radius: 0 6px 6px 0;
+      font-style: italic;
       color: var(--text-secondary);
-      text-align: center;
-      margin-top: -12px;
-      margin-bottom: 24px;
     }
+    blockquote p { margin-bottom: 8px; }
+    blockquote p:last-child { margin-bottom: 0; }
     hr {
       border: none;
       border-top: 1px solid var(--border);
@@ -190,15 +214,6 @@
       color: var(--accent);
       border-left-color: var(--accent);
     }
-    .toc-list .toc-h3 a {
-      padding-left: 26px;
-      font-size: 12px;
-      color: #aaa;
-    }
-    .toc-list .toc-h3 a:hover,
-    .toc-list .toc-h3 a.active {
-      color: var(--accent);
-    }
     @media (max-width: 1100px) {
       .toc { display: none; }
     }
@@ -207,35 +222,6 @@
       h2 { font-size: 22px; }
       pre { font-size: 12.5px; }
       footer { flex-direction: column; gap: 12px; text-align: center; }
-    }
-      .code-block-wrapper {
-      position: relative;
-      margin: 24px 0;
-    }
-    .copy-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(199, 123, 58, 0.1);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-family: "Helvetica Neue", sans-serif;
-      font-size: 12px;
-      color: var(--accent);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .copy-btn:hover {
-      background: rgba(199, 123, 58, 0.2);
-    }
-    .copy-btn.copied {
-      background: rgba(45, 154, 74, 0.1);
-      color: #2d9a4a;
-      border-color: #2d9a4a;
     }
     .back-btn {
       position: fixed;
@@ -258,7 +244,7 @@
     @media (max-width: 1100px) {
       .back-btn { display: none; }
     }
-</style>
+  </style>
 </head>
 <body>
 
@@ -267,89 +253,98 @@
   <nav class="toc">
     <div class="toc-title">目录</div>
     <ul class="toc-list">
-      <li><a href="#s1">安装步骤</a></li>
-      <li class="toc-h3"><a href="#s1-1">1. 确认 Claude Code 版本</a></li>
-      <li class="toc-h3"><a href="#s1-2">2. 安装 cc-buddy</a></li>
-      <li class="toc-h3"><a href="#s1-3">3. 自定义你的 buddy</a></li>
-      <li class="toc-h3"><a href="#s1-4">4. 进入 claude，引用 /buddy</a></li>
+      <li><a href="#s1">它做了什么</a></li>
+      <li><a href="#s2">为什么原生版不够用</a></li>
+      <li><a href="#s3">和手动配置的区别</a></li>
+      <li><a href="#s4">安装</a></li>
     </ul>
   </nav>
 
   <header>
     <div class="tag">Claude Code</div>
-    <h1>Claude Code 使用笔记(2)_<br>必出闪光宠物✨</h1>
+    <h1>Claude Code 使用笔记(6)_<br>一个插件，把散装零件装成整车</h1>
     <div class="meta">
-      <span>2026 · April</span>
+      <span>2026 · May</span>
       <span class="meta-dot"></span>
-      <span>Claude Code · cc-buddy</span>
+      <span>Claude Code · claude-code-setup · 插件</span>
     </div>
   </header>
 
   <article>
 
-    <h2 id="s1">安装步骤</h2>
+    <p>大多数人用的 Claude Code 是"原生版"——装好就用，不加插件，不加配置。能用，但体验说不上好。</p>
 
-    <h3 id="s1-1">1. 确认 Claude Code 版本 >= 2.1.89</h3>
+    <p>写代码靠临时起意，格式化靠运气，安全检查靠自觉。就像买了一台裸机，没装任何软件，然后说"这电脑也不怎么样"。</p>
 
-        <div class="code-block-wrapper">
+    <p>Anthropic 悄悄发了一个官方插件来解决这个问题：<code>claude-code-setup</code>。它不写代码，只做一件事——扫描你的项目，然后告诉你还缺什么。</p>
+
+    <h2 id="s1">它做了什么</h2>
+
+    <p>装好之后，在 Claude Code 里说一句"帮我推荐自动化配置"，它会扫描整个项目：</p>
+
+    <p>- 看你的技术栈（React？Python？Go？）<br>
+    - 看你的目录结构（monorepo？单项目？）<br>
+    - 看你的配置文件（有 ESLint 吗？有测试框架吗？）</p>
+
+    <p>然后从五个维度给出推荐：</p>
+
+    <p><em>MCP Servers</em> — 外部工具集成。前端项目推 Playwright 做自动化测试；文档不全的项目推 context7 做文档查询。</p>
+
+    <p><em>Skills</em> — 打包好的专业能力。复杂项目推 Plan agent 做架构规划；前端项目推 frontend-design 做界面生成。</p>
+
+    <p><em>Hooks</em> — 自动化触发器。没配 linter 的项目推自动格式化 Hook；有敏感文件的项目推文件保护 Hook。</p>
+
+    <p><em>Subagents</em> — 专项审查代理。推安全审查、性能审查、可访问性审查三个专用 agent，各管一摊。</p>
+
+    <p><em>Slash Commands</em> — 快捷指令。<code>/test</code> 一键跑测试，<code>/pr-review</code> 一键做 PR 审查，<code>/explain</code> 一键解释代码。</p>
+
+    <p>每个维度只推 1-2 个最相关的，不堆数量。</p>
+
+    <h2 id="s2">为什么原生版不够用</h2>
+
+    <p>Claude Code 的核心能力是对话和代码生成，但真正高效的开发环境不止这些。</p>
+
+    <p>Hooks 解决的是可靠性问题——格式化、lint 这些机械操作，靠人记着不靠谱，靠 AI 记着更不靠谱。系统级触发才是唯一的确定性方案。</p>
+
+    <p>Skills 解决的是深度问题——通用对话什么都能聊，但特定领域（架构设计、前端 UI）需要结构化的专业知识，Skills 就是把这个打包好。</p>
+
+    <p>MCP Servers 解决的是边界问题——Claude Code 跑在终端里，要访问浏览器、数据库、外部 API，就得靠 MCP 协议桥接出去。</p>
+
+    <p>Subagents 解决的是审查问题——自己写的代码自己查，跟考试自己批卷一个效果。独立 agent 只做审查，没有利益冲突。</p>
+
+    <p>这四样东西，原生版全都没有。不是它不好，是它只负责核心能力，生态的事留给插件。</p>
+
+    <h2 id="s3">和手动配置的区别</h2>
+
+    <p>不用插件也能把这些配起来——手动写 settings.json、手动写 Hook 脚本、手动找 MCP server。但有两个问题：</p>
+
+    <p>第一，你得知道缺什么。很多人根本没意识到 Hooks 的存在，更不知道 formatting Hook 能解决什么问题。</p>
+
+    <p>第二，你知道缺什么也不一定知道怎么配。MCP server 的配置格式、Hook 的 matcher 写法，门槛不低。</p>
+
+    <p><code>claude-code-setup</code> 是先告诉你缺什么，再帮你配好。两步都做了，而不是只做一步。</p>
+
+    <h2 id="s4">安装</h2>
+
+    <p>一行命令：</p>
+
+    <div class="code-block-wrapper">
       <button class="copy-btn" onclick="copyCode(this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         复制
       </button>
-    <pre><code>claude update</code></pre>
+    <pre><code>/plugin install claude-code-setup@claude-plugins-official</code></pre>
     </div>
 
-    <h3 id="s1-2">2. 安装 cc-buddy</h3>
+    <p>然后对 Claude Code 说"帮我推荐自动化配置"。剩下的它会引导你一步步完成。</p>
 
-        <div class="code-block-wrapper">
-      <button class="copy-btn" onclick="copyCode(this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
-        复制
-      </button>
-    <pre><code># 方式 1：npx
-npx cc-buddy
-
-# 方式 2：全局安装
-npm i -g cc-buddy</code></pre>
-    </div>
-
-    <h3 id="s1-3">3. 自定义你的 buddy</h3>
-
-    <p>跑完之后会出现选择界面，选一个你喜欢的宠物。</p>
-
-    <img src="../assets/buddy/buddy_init.png" alt="buddy_init" class="article-img" />
-    <p class="img-caption">选择界面</p>
-
-    <p>当然要金色传说～</p>
-
-    <img src="../assets/buddy/buddy_rate.png" alt="buddy_rate" class="article-img" />
-    <p class="img-caption">宠物等级</p>
-
-    <h3 id="s1-4">4. 进入 claude，引用 /buddy</h3>
-
-    <img src="../assets/buddy/buddy_launch.png" alt="buddy_launch" class="article-img" />
-    <p class="img-caption">启动 buddy</p>
-
-    <p>来吧神龙（右下角出现了）：</p>
-
-    <img src="../assets/buddy/buddy_succ.png" alt="buddy_succ" class="article-img" />
-    <p class="img-caption">召唤成功</p>
-
-    <hr>
-
-    <p>可以随时 <code>npx cc-buddy</code> 重新换宠物～</p>
+    <p>Claude Code 的真正能力不在核心里，在它周围的生态上。不装插件是自行车，装了才是机动车～</p>
 
   </article>
 
   <footer>
-    <span>© 2026 登月妄想计划</span>
-    <span>Claude Code · cc-buddy</span>
+    <span>&copy; 2026 blog.space01.cc</span>
+    <span>Claude Code &middot; claude-code-setup &middot; 插件</span>
   </footer>
 
   <script>
@@ -367,16 +362,16 @@ npm i -g cc-buddy</code></pre>
     }, { rootMargin: '0px 0px -70% 0px' });
 
     headings.forEach(h => { if (h) observer.observe(h); });
-  
+
   function copyCode(button) {
     const wrapper = button.parentElement;
     const code = wrapper.querySelector('code');
     const text = code.textContent;
-    
+
     navigator.clipboard.writeText(text).then(() => {
       button.classList.add('copied');
       button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
-      
+
       setTimeout(() => {
         button.classList.remove('copied');
         button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制';
